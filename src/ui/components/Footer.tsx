@@ -82,7 +82,7 @@ export async function Footer({ channel }: { channel: string }) {
 				)}
 
 				<div className="flex flex-col justify-between border-t border-neutral-200 py-10 sm:flex-row">
-					<p className="text-sm text-[#ed4264]">Copyright &copy; {currentYear} MeatnDoor, Inc.</p>
+					<p className="text-sm text-[#47141e]">Copyright &copy; {currentYear} MeatnDoor, Inc.</p>
 					<p className="flex gap-1 text-sm text-[#47141e]">
 						Powered by{" "}
 						<Link target={"_blank"} href={"https://github.com/aahad12"}>

@@ -3,9 +3,8 @@ import { executeGraphQL } from "@/lib/graphql";
 import { ProductList } from "@/ui/components/ProductList";
 
 export const metadata = {
-	title: "ACME Storefront, powered by Saleor & Next.js",
-	description:
-		"Storefront Next.js Example for building performant e-commerce experiences with Saleor - the composable, headless commerce platform for global brands.",
+	title: "MEATnDOOR",
+	description: "Quality at Doorstep",
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
@@ -26,7 +25,6 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 
 	return (
 		<section className="mx-auto max-w-7xl p-8 pb-16">
-			<h2 className="sr-only">Product list</h2>
 			<h2 className="sr-only">Product list</h2>
 			<ProductList products={products} />
 		</section>
