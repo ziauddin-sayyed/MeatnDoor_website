@@ -120,6 +120,7 @@
 // };
 
 import { Suspense, useState } from "react";
+import DeliverySlotPicker from "../../../ui/customcomponents/DeliverySlotPicker";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { Contact } from "@/checkout/sections/Contact";
 import { DeliveryMethods } from "@/checkout/sections/DeliveryMethods";
@@ -146,7 +147,7 @@ export const CheckoutForm = () => {
 
 	const [showOnlyContact, setShowOnlyContact] = useState(!!passwordResetToken);
 	const [loading, setLoading] = useState(false);
-	// const [selectedSlot, setSelectedSlot] = useState(null);
+	const [selectedSlot, setSelectedSlot] = useState(null);
 
 	// ✅ Complete order using fetch()
 	// const handlePlaceOrder = async () => {
@@ -289,6 +290,10 @@ export const CheckoutForm = () => {
 				alert("Checkout ID missing — cannot complete order.");
 				return;
 			}
+			if (!selectedSlot) {
+				alert("Please select a delivery slot before placing order.");
+				return;
+			}
 
 			setLoading(true);
 
@@ -369,7 +374,10 @@ export const CheckoutForm = () => {
 
 	const handlePayOnline = async () => {
 		if (!checkout?.id) return alert("Checkout missing");
-
+		if (!selectedSlot) {
+			alert("Please select a delivery slot before placing order.");
+			return;
+		}
 		setLoadingOnline(true);
 
 		try {
@@ -518,7 +526,7 @@ export const CheckoutForm = () => {
 				<Suspense fallback={<ContactSkeleton />}>
 					<Contact setShowOnlyContact={setShowOnlyContact} />
 				</Suspense>
-				{/* <DeliverySlotPicker selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot} /> */}
+				<DeliverySlotPicker selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot} />
 
 				<>
 					{checkout?.isShippingRequired && (
@@ -542,24 +550,20 @@ export const CheckoutForm = () => {
 						<h1 className="mb-4 text-lg font-semibold">Payment Method</h1>
 						{/* ✅ Place Order Button */}
 						<Button
-							className="w-full rounded-md py-3"
+							className="w-full rounded-md py-3 text-white"
 							onClick={onPlaceOrder}
 							disabled={loading}
-							label={undefined}
-						>
-							{loading ? "Placing Order..." : "Place Order"}
-							Place Order
-						</Button>
+							label={loading ? "Placing Order..." : "Pay In Cash"}
+						/>
 						<Button
-							label={undefined}
+							label={loading ? "Placing Order..." : "Pay Online"}
 							className="w-full py-3"
 							onClick={handlePayOnline}
 							disabled={loadingOnline}
-						>
-							{loading ? "Placing Order..." : "Place Order"}
+						/>
+						{/* {loading ? "Placing Order..." : "Place Order"}
 							Place Order
-						</Button>
-						<h1>cehck</h1>
+						</Button> */}
 					</div>
 				</>
 			</div>
