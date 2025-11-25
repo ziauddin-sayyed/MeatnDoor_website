@@ -244,7 +244,6 @@ export const CheckoutForm = () => {
 			};
 		};
 	}
-
 	const completeCheckoutSaleor = async (user: User | null | undefined) => {
 		const query = `
 		  mutation {
@@ -342,9 +341,9 @@ export const CheckoutForm = () => {
 				alert(`✅ Order placed successfully! Order #${result.order.number}`);
 				console.log("Order Details:", result.order);
 				document.cookie = "checkoutId-in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+				window.location.href = "/in/orders";
 				return;
 			}
-
 			alert("Something went wrong!");
 		} catch (err) {
 			console.error("Error completing order:", err);

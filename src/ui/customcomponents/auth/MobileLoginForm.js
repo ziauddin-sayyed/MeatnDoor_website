@@ -273,6 +273,8 @@ export function MobileLoginForm() {
 				);
 				// window.opener.location.reload();
 				// window.close();
+				alert("✅ Login successful!");
+				router.push("/in");
 			}
 		} catch (error) {
 			console.error("Error verifying OTP:", error);
