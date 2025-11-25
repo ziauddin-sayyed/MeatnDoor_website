@@ -174,10 +174,10 @@ export function MobileLoginForm() {
 
 	// 🔹 Send OTP
 	const generateOtp = async () => {
-		// if (!phone || phone.length !== 10) {
-		// 	alert("Please enter a valid 10-digit phone number");
-		// 	return;
-		// }
+		if (!phone || phone.length !== 10) {
+			alert("Please enter a valid 10-digit phone number");
+			return;
+		}
 		try {
 			const response = await fetch(apiConfig.SEND_OTP_ENDPOINT, {
 				method: "POST",
@@ -186,8 +186,20 @@ export function MobileLoginForm() {
 			});
 			const data = await response.json();
 			console.log("OTP Response:", data);
-			if (response.ok) setOtpSent(true);
-			else alert(data.message || "Failed to send OTP");
+			// if (response.ok) setOtpSent(true);
+			// else alert(data.message || "Failed to send OTP");
+			if (response.ok) {
+				if (data.new_otp) {
+					setOtpSent(true);
+					alert("OTP sent successfully!");
+				} else {
+					// cooldown case
+					setOtpSent(true);
+					alert(data.message || "Please wait before requesting a new OTP.");
+				}
+			} else {
+				alert(data.message || "Failed to send OTP");
+			}
 		} catch (error) {
 			console.error("Error sending OTP:", error);
 		}
@@ -274,7 +286,7 @@ export function MobileLoginForm() {
 				// window.opener.location.reload();
 				// window.close();
 				alert("✅ Login successful!");
-				router.push("/in");
+				router.push("/in/cart");
 			}
 		} catch (error) {
 			console.error("Error verifying OTP:", error);
@@ -297,15 +309,20 @@ export function MobileLoginForm() {
 						<label htmlFor="phone" className="mb-1 block text-sm font-medium">
 							Phone number
 						</label>
-						<input
-							type="tel"
-							id="phone"
-							value={phone}
-							onChange={(e) => setPhone(e.target.value)}
-							placeholder="Enter your mobile number"
-							className="w-full rounded border bg-neutral-50 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
-							required
-						/>
+						<div className="flex">
+							<span className="inline-flex items-center rounded-l border bg-neutral-100 px-3 text-neutral-800">
+								+91
+							</span>
+							<input
+								type="tel"
+								id="phone"
+								value={phone}
+								onChange={(e) => setPhone(e.target.value)}
+								placeholder="Enter your mobile number"
+								className="w-full rounded border bg-neutral-50 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
+								required
+							/>
+						</div>
 						<button
 							type="submit"
 							className="mt-4 w-full rounded bg-neutral-800 px-4 py-2 text-neutral-200 hover:bg-neutral-700"
@@ -334,10 +351,22 @@ export function MobileLoginForm() {
 							Verify OTP
 						</button>
 
-						<p className="mt-2 text-sm text-gray-500">
+						{/* <p className="mt-2 text-sm text-gray-500">
 							Didn’t receive OTP?{" "}
 							<span onClick={generateOtp} className="cursor-pointer text-blue-600">
 								Resend
+							</span>
+						</p> */}
+						<p className="mt-2 text-sm text-gray-500">
+							Didn’t receive OTP?{" "}
+							<span
+								onClick={() => {
+									setOtpSent(false); // go back to phone input
+									setOtp(""); // clear previous OTP
+								}}
+								className="cursor-pointer text-blue-600"
+							>
+								Verify Number Again
 							</span>
 						</p>
 					</div>

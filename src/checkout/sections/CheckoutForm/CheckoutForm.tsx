@@ -270,9 +270,14 @@ export const CheckoutForm = () => {
 		const data = (await res.json()) as CheckoutCompleteResponse;
 		const result = data?.data?.checkoutComplete;
 
-		if (result?.errors?.length) {
-			alert("❌ " + result.errors[0].message);
-			return null;
+		// if (result?.errors?.length) {
+		// 	alert("❌ " + result.errors[0].message);
+		// 	return null;
+		// }
+		if (result?.errors && result.errors.length > 0) {
+			// alert("❌ " + result.errors[0].message); // this says checkout email must be set
+			alert("❌ Please login First");
+			return;
 		}
 
 		return result?.order;
@@ -291,6 +296,10 @@ export const CheckoutForm = () => {
 			}
 			if (!selectedSlot) {
 				alert("Please select a delivery slot before placing order.");
+				return;
+			}
+			if (!user) {
+				alert("❌ Please login first");
 				return;
 			}
 
@@ -332,7 +341,8 @@ export const CheckoutForm = () => {
 			const result = data?.data?.checkoutComplete;
 
 			if (result?.errors && result.errors.length > 0) {
-				alert("❌ " + result.errors[0].message);
+				// alert("❌ " + result.errors[0].message); // this says checkout email must be set
+				alert("❌ Please login First");
 				return;
 			}
 
@@ -375,6 +385,10 @@ export const CheckoutForm = () => {
 		if (!checkout?.id) return alert("Checkout missing");
 		if (!selectedSlot) {
 			alert("Please select a delivery slot before placing order.");
+			return;
+		}
+		if (!user) {
+			alert("❌ Please login first");
 			return;
 		}
 		setLoadingOnline(true);
@@ -522,9 +536,11 @@ export const CheckoutForm = () => {
 		<div className="flex flex-col items-end">
 			<div className="flex w-full flex-col rounded">
 				{/* Delivery Slot Picker */}
-				<Suspense fallback={<ContactSkeleton />}>
-					<Contact setShowOnlyContact={setShowOnlyContact} />
-				</Suspense>
+				<div className="hidden">
+					<Suspense fallback={<ContactSkeleton />}>
+						<Contact setShowOnlyContact={setShowOnlyContact} />
+					</Suspense>
+				</div>
 				<DeliverySlotPicker selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot} />
 
 				<>
@@ -555,7 +571,7 @@ export const CheckoutForm = () => {
 							label={loading ? "Placing Order..." : "Pay In Cash"}
 						/>
 						<Button
-							label={loading ? "Placing Order..." : "Pay Online"}
+							label={loadingOnline ? "Placing Order..." : "Pay Online"}
 							className="w-full py-3"
 							onClick={handlePayOnline}
 							disabled={loadingOnline}

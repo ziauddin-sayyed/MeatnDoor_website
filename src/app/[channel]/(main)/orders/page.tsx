@@ -1,15 +1,18 @@
 import { CurrentUserOrderListDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
-import { LoginForm } from "@/ui/components/LoginForm";
+// import { LoginForm } from "@/ui/components/LoginForm";
 import { OrderListItem } from "@/ui/components/OrderListItem";
+import { MobileLoginForm } from "@/ui/customcomponents/auth/MobileLoginForm";
 
 export default async function OrderPage() {
 	const { me: user } = await executeGraphQL(CurrentUserOrderListDocument, {
 		cache: "no-cache",
 	});
+	// this is /orders page
 
 	if (!user) {
-		return <LoginForm />;
+		// return <LoginForm />;
+		return <MobileLoginForm />;
 	}
 
 	const orders = user.orders?.edges || [];

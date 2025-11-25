@@ -4,12 +4,23 @@ import { DeleteLineButton } from "./DeleteLineButton";
 import * as Checkout from "@/lib/checkout";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { CurrentUserOrderListDocument } from "@/gql/graphql";
+import { executeGraphQL } from "@/lib/graphql";
+import { MobileLoginForm } from "@/ui/customcomponents/auth/MobileLoginForm";
 
 export const metadata = {
 	title: "Shopping Cart · Saleor Storefront example",
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
+	const { me: user } = await executeGraphQL(CurrentUserOrderListDocument, {
+		cache: "no-cache",
+	});
+	// this is /cart page
+	if (!user) {
+		// return <LoginForm />;
+		return <MobileLoginForm />; // no login then we go to login form
+	}
 	const params = await props.params;
 	const checkoutId = await Checkout.getIdFromCookies(params.channel);
 
