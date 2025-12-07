@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 // import { Suspense, useState } from "react";
 // import DeliverySlotPicker from "../../../ui/customcomponents/DeliverySlotPicker";
 // import { useCheckout } from "@/checkout/hooks/useCheckout";
@@ -282,12 +283,96 @@ export const CheckoutForm = () => {
 
 		return result?.order;
 	};
+	// without metadata place order
+	// const handlePlaceOrder = async (
+	// 	checkout: Checkout | null,
+	// 	user: User | null | undefined,
+	// 	setLoading: (loading: boolean) => void,
+	// 	GRAPHQL_ENDPOINT: string,
+	// ) => {
+	// 	try {
+	// 		if (!checkout?.id) {
+	// 			alert("Checkout ID missing — cannot complete order.");
+	// 			return;
+	// 		}
+	// 		if (!selectedSlot) {
+	// 			alert("Please select a delivery slot before placing order.");
+	// 			return;
+	// 		}
+	// 		if (!user) {
+	// 			alert("❌ Please login first");
+	// 			return;
+	// 		}
 
+	// 		setLoading(true);
+
+	// 		const query = `
+	// 			mutation {
+	// 				checkoutComplete(id: "${checkout.id}") {
+	// 					order {
+	// 						id
+	// 						number
+	// 						status
+	// 						total {
+	// 							gross {
+	// 								amount
+	// 								currency
+	// 							}
+	// 						}
+	// 					}
+	// 					errors {
+	// 						field
+	// 						message
+	// 					}
+	// 				}
+	// 			}
+	// 		`;
+
+	// 		const response = await fetch(GRAPHQL_ENDPOINT, {
+	// 			method: "POST",
+	// 			headers: {
+	// 				"Content-Type": "application/json",
+	// 				Authorization: user?.token ? `JWT ${user.token}` : "",
+	// 			},
+	// 			body: JSON.stringify({ query }),
+	// 		});
+
+	// 		const data = (await response.json()) as CheckoutCompleteResponse;
+
+	// 		const result = data?.data?.checkoutComplete;
+
+	// 		if (result?.errors && result.errors.length > 0) {
+	// 			// alert("❌ " + result.errors[0].message); // this says checkout email must be set
+	// 			alert("❌ Please login First");
+	// 			return;
+	// 		}
+
+	// 		if (result?.order) {
+	// 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+	// 			alert(`✅ Order placed successfully! Order #${result.order.number}`);
+	// 			console.log("Order Details:", result.order);
+	// 			document.cookie = "checkoutId-in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+	// 			window.location.href = "/in/orders";
+	// 			return;
+	// 		}
+	// 		alert("Something went wrong!");
+	// 	} catch (err) {
+	// 		console.error("Error completing order:", err);
+	// 		alert("⚠️ Failed to place order. Please try again.");
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
 	const handlePlaceOrder = async (
 		checkout: Checkout | null,
 		user: User | null | undefined,
 		setLoading: (loading: boolean) => void,
 		GRAPHQL_ENDPOINT: string,
+		selectedSlot: {
+			date: any;
+			day: string;
+			slot: string;
+		} | null,
 	) => {
 		try {
 			if (!checkout?.id) {
@@ -304,8 +389,40 @@ export const CheckoutForm = () => {
 			}
 
 			setLoading(true);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			const isoString: string = selectedSlot.date.toISOString();
+			const parts: string[] = isoString.split("T");
+			const deliveryDate: string = parts[0];
 
-			const query = `
+			// { key: "delivery_slot_day", value: "${selectedSlot.day}" },
+			const metaQuery = `
+	mutation {
+		updateMetadata(
+			id: "${checkout.id}",
+			input: [
+				{ key: "delivery_slot_date", value: "${deliveryDate}" },
+				{ key: "delivery_slot_time", value: "${selectedSlot.slot}" },
+				{ key: "delivery_method", value: "cash_on_delivery" }
+				]
+				) {
+					errors { field message }
+					}
+					}
+					`;
+
+			await fetch(GRAPHQL_ENDPOINT, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: user?.token ? `JWT ${user.token}` : "",
+				},
+				body: JSON.stringify({ query: metaQuery }),
+			});
+
+			// -------------------------
+			// 2️⃣ Complete checkout
+			// -------------------------
+			const completeQuery = `
 				mutation {
 					checkoutComplete(id: "${checkout.id}") {
 						order {
@@ -333,27 +450,26 @@ export const CheckoutForm = () => {
 					"Content-Type": "application/json",
 					Authorization: user?.token ? `JWT ${user.token}` : "",
 				},
-				body: JSON.stringify({ query }),
+				body: JSON.stringify({ query: completeQuery }),
 			});
 
 			const data = (await response.json()) as CheckoutCompleteResponse;
 
 			const result = data?.data?.checkoutComplete;
 
-			if (result?.errors && result.errors.length > 0) {
-				// alert("❌ " + result.errors[0].message); // this says checkout email must be set
-				alert("❌ Please login First");
+			if (result?.errors?.length) {
+				alert("❌ " + result.errors[0].message);
 				return;
 			}
 
+			// SUCCESS
 			if (result?.order) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				alert(`✅ Order placed successfully! Order #${result.order.number}`);
-				console.log("Order Details:", result.order);
+				alert(`✅ Order placed for ${selectedSlot.day} (${selectedSlot.slot}) using COD`);
 				document.cookie = "checkoutId-in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 				window.location.href = "/in/orders";
 				return;
 			}
+
 			alert("Something went wrong!");
 		} catch (err) {
 			console.error("Error completing order:", err);
@@ -362,6 +478,7 @@ export const CheckoutForm = () => {
 			setLoading(false);
 		}
 	};
+
 	interface RazorpayGatewayResponse {
 		id: string;
 	}
@@ -381,7 +498,16 @@ export const CheckoutForm = () => {
 		open: () => void;
 	}
 
-	const handlePayOnline = async () => {
+	const handlePayOnline = async (
+		checkout: Checkout | null,
+		user: User | null | undefined,
+		GRAPHQL_ENDPOINT: string,
+		selectedSlot: {
+			date: any;
+			day: string;
+			slot: string;
+		} | null,
+	) => {
 		if (!checkout?.id) return alert("Checkout missing");
 		if (!selectedSlot) {
 			alert("Please select a delivery slot before placing order.");
@@ -394,6 +520,37 @@ export const CheckoutForm = () => {
 		setLoadingOnline(true);
 
 		try {
+			// ------------------------------------
+			// 1️⃣ SAVE DELIVERY METADATA HERE
+			// ------------------------------------
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			const isoString: string = selectedSlot.date.toISOString();
+			const parts: string[] = isoString.split("T");
+			const deliveryDate: string = parts[0];
+
+			const metaQuery = `
+			mutation {
+				updateMetadata(
+					id: "${checkout.id}",
+					input: [
+						{ key: "delivery_slot_date", value: "${deliveryDate}" },
+						{ key: "delivery_slot_time", value: "${selectedSlot.slot}" },
+						{ key: "delivery_method", value: "online_payment" }
+					]
+				) {
+					errors { field message }
+				}
+			}
+		`;
+
+			await fetch(GRAPHQL_ENDPOINT, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: user?.token ? `JWT ${user.token}` : "",
+				},
+				body: JSON.stringify({ query: metaQuery }),
+			});
 			// 1️⃣ Get Razorpay Order ID from Saleor Payment Gateway
 			const response = await fetch(`${apiConfig.RAZORPAY_GATEWAY_ENDPOINT}?checkout_id=${checkout.id}`, {
 				method: "POST",
@@ -447,7 +604,7 @@ export const CheckoutForm = () => {
 	};
 
 	const onPlaceOrder = async () => {
-		await handlePlaceOrder(checkout, user, setLoading, GRAPHQL_ENDPOINT);
+		await handlePlaceOrder(checkout, user, setLoading, GRAPHQL_ENDPOINT, selectedSlot);
 	};
 
 	// const handlePlaceOrder = async () => {
@@ -573,7 +730,8 @@ export const CheckoutForm = () => {
 						<Button
 							label={loadingOnline ? "Placing Order..." : "Pay Online"}
 							className="w-full py-3"
-							onClick={handlePayOnline}
+							// onClick={handlePayOnline}
+							onClick={() => handlePayOnline(checkout, user, GRAPHQL_ENDPOINT, selectedSlot)}
 							disabled={loadingOnline}
 						/>
 						{/* {loading ? "Placing Order..." : "Place Order"}

@@ -9,7 +9,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { MobileLoginForm } from "@/ui/customcomponents/auth/MobileLoginForm";
 
 export const metadata = {
-	title: "Shopping Cart · Saleor Storefront example",
+	title: "Shopping Cart · MeatnDoor",
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {

@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import Image from "next/image";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { formatDate, formatMoney, getHrefForVariant } from "@/lib/utils";
 import { type OrderDetailsFragment } from "@/gql/graphql";
-import { PaymentStatus } from "@/ui/components/PaymentStatus";
+// import { PaymentStatus } from "@/ui/components/PaymentStatus";
 
 type Props = {
 	order: OrderDetailsFragment;
 };
 
 export const OrderListItem = ({ order }: Props) => {
+	// console.log(order);
 	return (
 		<li className="bg-white">
 			<div className="flex flex-col gap-2 border bg-neutral-200/20 px-6 py-4 md:grid md:grid-cols-4 md:gap-8">
-				<dl className="flex flex-col divide-y divide-neutral-200 text-sm md:col-span-3 md:grid md:grid-cols-3 md:gap-6 md:divide-none lg:col-span-2">
+				<dl className="flex flex-col divide-y divide-neutral-200 text-sm md:col-span-3 md:grid md:grid-cols-4 md:gap-6 md:divide-none lg:col-span-2">
 					<div className="flex flex-row items-center justify-between py-4 md:flex-col md:items-start md:gap-y-1">
 						<dt className="font-medium text-neutral-900">Order number</dt>
 						<dd className="text-neutral-600">{order.number}</dd>
@@ -23,10 +25,16 @@ export const OrderListItem = ({ order }: Props) => {
 							<time dateTime={order.created}>{formatDate(new Date(order.created))}</time>
 						</dd>
 					</div>
-					<div className="flex flex-row items-center justify-between py-4 md:flex-col md:items-start md:gap-y-1">
+					{/* <div className="flex flex-row items-center justify-between py-4 md:flex-col md:items-start md:gap-y-1">
 						<dt className="font-medium text-neutral-900">Payment status</dt>
 						<dd>
 							<PaymentStatus status={order.paymentStatus} />
+						</dd>
+					</div> */}
+					<div className="flex flex-row items-center justify-between py-4 md:flex-col md:items-start md:gap-y-1">
+						<dt className="font-medium text-neutral-900">status</dt>
+						<dd>
+							<h1> {order.status} </h1>
 						</dd>
 					</div>
 				</dl>
@@ -124,6 +132,47 @@ export const OrderListItem = ({ order }: Props) => {
 							</tbody>
 						</table>
 					</div>
+					<div className="flex justify-between">
+						{order.shippingAddress && (
+							<div className="border-t px-6 py-4 text-sm">
+								<h3 className="font-medium text-neutral-900">Delivery Address</h3>
+
+								<p className="mt-1 text-neutral-600">
+									{order.shippingAddress.streetAddress1}
+									<br />
+									{order.shippingAddress.streetAddress2 && (
+										<>
+											{order.shippingAddress.streetAddress2}
+											<br />
+										</>
+									)}
+									{order.shippingAddress.city} - {order.shippingAddress.postalCode}
+									<br />
+									{order.shippingAddress.country.country}
+									<br />
+									Phone: {order.shippingAddress.phone}
+								</p>
+							</div>
+						)}
+						<div>
+							<h3 className="font-medium text-neutral-900">Bill Details</h3>
+							<div>
+								<p>items total</p>
+								<p>
+									Delivery Charge:{" "}
+									{order.shippingPrice.gross.amount === 0 ? "free" : order.shippingPrice.gross.amount}{" "}
+								</p>
+								<p>Handling fee</p>
+								<p>
+									Discount applied
+									{/* {order?.discount?.amount || 0} */}
+								</p>
+								<p>Instant discount</p>
+								<p>MeatnDoor cash</p>
+							</div>
+						</div>
+					</div>
+
 					<dl className="flex justify-between border-y py-6 text-sm font-medium text-neutral-900 md:border md:px-6">
 						<dt>Total amount including delivery</dt>
 						<dd>{formatMoney(order.total.gross.amount, order.total.gross.currency)}</dd>

@@ -2,16 +2,63 @@ fragment OrderDetails on Order {
 	id
 	number
 	created
+	status
+
+	# Totals
 	total {
 		gross {
 			amount
 			currency
 		}
 	}
+	subtotal {
+		gross {
+			amount
+			currency
+		}
+	}
+
+	# Payment status
+	paymentStatus
+
+	# Shipping info
+	shippingAddress {
+		streetAddress1
+		streetAddress2
+		city
+		postalCode
+		country {
+			code
+			country
+		}
+		phone
+	}
+	deliveryMethod {
+		__typename
+		... on ShippingMethod {
+			id
+			name
+		}
+		... on Warehouse {
+			id
+			name
+		}
+	}
+	shippingPrice {
+		gross {
+			amount
+			currency
+		}
+	}
+
+	# Order lines
 	lines {
+		quantity
+		productName
 		variant {
 			id
 			name
+			sku
 			product {
 				id
 				name
@@ -35,7 +82,11 @@ fragment OrderDetails on Order {
 				}
 			}
 		}
-		quantity
+		totalPrice {
+			gross {
+				amount
+				currency
+			}
+		}
 	}
-	paymentStatus
 }

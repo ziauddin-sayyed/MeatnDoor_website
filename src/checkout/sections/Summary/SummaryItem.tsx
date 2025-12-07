@@ -11,6 +11,8 @@ interface SummaryItemProps {
 }
 
 export const SummaryItem = ({ line, children }: SummaryItemProps) => {
+	// console.log("ORDER LINE DATA --->", line);
+
 	const { productName, productImage } = getSummaryLineProps(line);
 
 	const attributesText = useSummaryLineLineAttributesText(line);

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import React, { type FC } from "react";
+import React, { useEffect, type FC } from "react";
 import { Button } from "@/checkout/components/Button";
 import { TextInput } from "@/checkout/components/TextInput";
 import { useCheckoutAddPromoCodeMutation } from "@/checkout/graphql";
@@ -12,7 +12,11 @@ interface PromoCodeFormData {
 	promoCode: string;
 }
 
-export const PromoCodeAdd: FC<Classes> = ({ className }) => {
+interface PromoCodeAddProps extends Classes {
+	inputCouponLabel?: string;
+}
+
+export const PromoCodeAdd: FC<PromoCodeAddProps> = ({ className, inputCouponLabel }) => {
 	const [, checkoutAddPromoCode] = useCheckoutAddPromoCodeMutation();
 
 	const onSubmit = useFormSubmit<PromoCodeFormData, typeof checkoutAddPromoCode>({
@@ -28,18 +32,27 @@ export const PromoCodeAdd: FC<Classes> = ({ className }) => {
 
 	const form = useForm<PromoCodeFormData>({
 		onSubmit,
-		initialValues: { promoCode: "" },
+		initialValues: { promoCode: inputCouponLabel || "" },
 	});
 	const {
 		values: { promoCode },
 	} = form;
 
 	const showApplyButton = promoCode.length > 0;
-
+	useEffect(() => {
+		form.setFieldValue("promoCode", inputCouponLabel || "");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [inputCouponLabel]);
 	return (
 		<FormProvider form={form}>
 			<div className={clsx("relative my-4", className)}>
-				<TextInput required={false} name="promoCode" label="Add gift card or discount code" />
+				<TextInput
+					required={false}
+					name="promoCode"
+					value={inputCouponLabel}
+					// onChange={(e) => handleChange(e.target.value)}
+					label="Add gift card or discount code"
+				/>
 				{showApplyButton && (
 					<Button
 						className="absolute bottom-2.5 right-3"
