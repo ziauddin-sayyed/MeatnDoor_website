@@ -400,8 +400,8 @@ export const CheckoutForm = () => {
 		updateMetadata(
 			id: "${checkout.id}",
 			input: [
-				{ key: "delivery_slot_date", value: "${deliveryDate}" },
-				{ key: "delivery_slot_time", value: "${selectedSlot.slot}" },
+				{ key: "Delivery_Date", value: "${deliveryDate}" },
+				{ key: "Delivery_Time", value: "${selectedSlot.slot}" },
 				{ key: "delivery_method", value: "cash_on_delivery" }
 				]
 				) {
@@ -533,9 +533,9 @@ export const CheckoutForm = () => {
 				updateMetadata(
 					id: "${checkout.id}",
 					input: [
-						{ key: "delivery_slot_date", value: "${deliveryDate}" },
-						{ key: "delivery_slot_time", value: "${selectedSlot.slot}" },
-						{ key: "delivery_method", value: "online_payment" }
+						{ key: "Delivery_Time", value: "${deliveryDate}" },
+						{ key: "Delivery_Time", value: "${selectedSlot.slot}" },
+						{ key: "paymentMode", value: "online_payment" }
 					]
 				) {
 					errors { field message }
@@ -712,10 +712,12 @@ export const CheckoutForm = () => {
 							</CollapseSection>
 						</Suspense>
 					)}
-
-					<Suspense fallback={<DeliveryMethodsSkeleton />}>
-						<DeliveryMethods collapsed={showOnlyContact} />
-					</Suspense>
+					{/* delivery method delivery fee slot in not shown  */}
+					<div className="hidden">
+						<Suspense fallback={<DeliveryMethodsSkeleton />}>
+							<DeliveryMethods collapsed={showOnlyContact} />
+						</Suspense>
+					</div>
 
 					<div className="w-full">
 						<Divider />

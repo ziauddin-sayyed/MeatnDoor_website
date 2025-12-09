@@ -3,6 +3,10 @@ fragment OrderDetails on Order {
 	number
 	created
 	status
+	metadata {
+		key
+		value
+	}
 
 	# Totals
 	total {
@@ -16,6 +20,20 @@ fragment OrderDetails on Order {
 			amount
 			currency
 		}
+	}
+	# Voucher / Discount
+	voucherCode
+	discountName # fallback for older versions
+	discounts {
+		name
+		amount {
+			amount
+			currency
+		}
+	}
+	discount {
+		amount
+		currency
 	}
 
 	# Payment status
