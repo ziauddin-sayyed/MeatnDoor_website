@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 "use client";
 import Image from "next/image";
-import React from "react";
+// import React from "react";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { formatDate, formatMoney, getHrefForVariant } from "@/lib/utils";
 import { type OrderDetailsFragment } from "@/gql/graphql";
