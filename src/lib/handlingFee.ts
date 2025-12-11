@@ -1,3 +1,4 @@
+import { find } from "./checkout";
 import {
 	CheckoutAddLineDocument,
 	CheckoutLineUpdateDocument,
@@ -6,7 +7,6 @@ import {
 	SearchProductsDocument,
 } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
-import { find } from "./checkout";
 
 export async function ensureHandlingFee(checkoutId: string) {
 	console.log(`ensureHandlingFee called for checkoutId: ${checkoutId}`);

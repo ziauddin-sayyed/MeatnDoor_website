@@ -1,13 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { invariant } from "ts-invariant";
 import { getServerAuthClient } from "@/app/config";
 
 
-import { revalidatePath } from "next/cache";
 import { CheckoutAddLineDocument, CheckoutDeleteLinesDocument, CheckoutLineUpdateDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import * as Checkout from "@/lib/checkout";
-import { invariant } from "ts-invariant";
 
 export async function logout() {
 	"use server";

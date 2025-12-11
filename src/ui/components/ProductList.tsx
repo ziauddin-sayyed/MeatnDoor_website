@@ -3,10 +3,10 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 
 export const ProductList = ({
 	products,
-	cartItems,
+	cartItems = {},
 }: {
 	products: readonly ProductListItemFragment[];
-	cartItems: Record<string, { lineId: string; quantity: number }>;
+	cartItems?: Record<string, { lineId: string; quantity: number }>;
 }) => {
 	return (
 		<ul

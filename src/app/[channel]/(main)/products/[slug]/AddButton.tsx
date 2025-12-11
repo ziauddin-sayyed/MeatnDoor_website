@@ -1,8 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { addToCart, updateCartItem } from "@/app/actions";
 import { ClipLoader } from "react-spinners";
+import { addToCart, updateCartItem } from "@/app/actions";
 
 export function AddButton({
 	disabled,

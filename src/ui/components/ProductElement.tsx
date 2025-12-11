@@ -2,10 +2,10 @@
 
 import { useTransition } from "react";
 import { useParams } from "next/navigation";
-import { addToCart, updateCartItem } from "@/app/actions";
 import { ClipLoader } from "react-spinners";
 
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
+import { addToCart, updateCartItem } from "@/app/actions";
 import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
 
 import type { ProductListItemFragment } from "@/gql/graphql";
