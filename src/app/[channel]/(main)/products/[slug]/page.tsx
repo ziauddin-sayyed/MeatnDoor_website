@@ -1,16 +1,14 @@
 import edjsHTML from "editorjs-html";
-import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { type ResolvingMetadata, type Metadata } from "next";
 import xss from "xss";
-import { invariant } from "ts-invariant";
 import { type WithContext, type Product } from "schema-dts";
 import { AddButton } from "./AddButton";
 import { VariantSelector } from "@/ui/components/VariantSelector";
 import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
-import { CheckoutAddLineDocument, ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
+import { ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
 import * as Checkout from "@/lib/checkout";
 import { AvailabilityMessage } from "@/ui/components/AvailabilityMessage";
 
@@ -97,74 +95,10 @@ export default async function Page(props: {
 	const selectedVariantID = searchParams.variant;
 	const selectedVariant = variants?.find(({ id }) => id === selectedVariantID);
 
-	async function addItem() {
-		"use server";
+	const checkoutId = await Checkout.getIdFromCookies(params.channel);
+	const checkout = await Checkout.find(checkoutId);
 
-		const checkout = await Checkout.findOrCreate({
-			checkoutId: await Checkout.getIdFromCookies(params.channel),
-			channel: params.channel,
-		});
-		invariant(checkout, "This should never happen");
 
-		await Checkout.saveIdToCookie(params.channel, checkout.id);
-
-		if (!selectedVariantID) {
-			return;
-		}
-
-		// TODO: error handling
-		await executeGraphQL(CheckoutAddLineDocument, {
-			variables: {
-				id: checkout.id,
-				productVariantId: decodeURIComponent(selectedVariantID),
-			},
-			cache: "no-cache",
-		});
-
-		revalidatePath("/cart");
-	}
-
-	// for testing without updated email
-	// async function addItem() {
-	// 	"use server";
-
-	// 	const checkoutId = await Checkout.getIdFromCookies(params.channel);
-
-	// 	let checkout = await Checkout.findOrCreate({
-	// 		checkoutId,
-	// 		channel: params.channel,
-	// 	});
-
-	// 	// If findOrCreate returned null, manually create a new one
-	// 	if (!checkout) {
-	// 		console.warn("No checkout found — creating new one.");
-
-	// 		const created = await Checkout.create({ channel: params.channel });
-	// 		const createdCheckout = created.checkoutCreate?.checkout;
-
-	// 		if (!createdCheckout) {
-	// 			console.error("Checkout creation failed:", created.checkoutCreate?.errors);
-	// 			throw new Error("Could not create checkout");
-	// 		}
-
-	// 		checkout = createdCheckout;
-	// 		await Checkout.saveIdToCookie(params.channel, checkout.id);
-	// 	} else {
-	// 		await Checkout.saveIdToCookie(params.channel, checkout.id);
-	// 	}
-
-	// 	if (!selectedVariantID) return;
-
-	// 	await executeGraphQL(CheckoutAddLineDocument, {
-	// 		variables: {
-	// 			id: checkout.id,
-	// 			productVariantId: decodeURIComponent(selectedVariantID),
-	// 		},
-	// 		cache: "no-cache",
-	// 	});
-
-	// 	revalidatePath("/cart");
-	// }
 
 	const isAvailable = variants?.some((variant) => variant.quantityAvailable) ?? false;
 
@@ -218,7 +152,7 @@ export default async function Page(props: {
 					__html: JSON.stringify(productJsonLd),
 				}}
 			/>
-			<form className="grid gap-2 sm:grid-cols-2 lg:grid-cols-8" action={addItem}>
+			<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-8">
 				<div className="mx-auto w-full max-w-[400px] md:col-span-1 lg:col-span-3">
 					{firstImage && (
 						<ProductImageWrapper
@@ -249,7 +183,23 @@ export default async function Page(props: {
 						)}
 						<AvailabilityMessage isAvailable={isAvailable} />
 						<div className="mt-8">
-							<AddButton disabled={!selectedVariantID || !selectedVariant?.quantityAvailable} />
+							<AddButton
+								disabled={!selectedVariantID || !selectedVariant?.quantityAvailable}
+								channel={params.channel}
+								variantId={selectedVariantID}
+								cartItem={
+									checkout?.lines.find((line) => line.variant?.id === selectedVariantID)
+										? {
+												lineId: checkout.lines.find(
+													(line) => line.variant?.id === selectedVariantID,
+												)!.id,
+												quantity: checkout.lines.find(
+													(line) => line.variant?.id === selectedVariantID,
+												)!.quantity,
+											}
+										: undefined
+								}
+							/>
 						</div>
 						{description && (
 							<div className="mt-8 space-y-6 text-sm text-neutral-500">
@@ -260,7 +210,7 @@ export default async function Page(props: {
 						)}
 					</div>
 				</div>
-			</form>
+			</div>
 		</section>
 	);
 }

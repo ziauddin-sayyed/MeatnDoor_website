@@ -1,7 +1,13 @@
 import { ProductElement } from "./ProductElement";
 import { type ProductListItemFragment } from "@/gql/graphql";
 
-export const ProductList = ({ products }: { products: readonly ProductListItemFragment[] }) => {
+export const ProductList = ({
+	products,
+	cartItems,
+}: {
+	products: readonly ProductListItemFragment[];
+	cartItems: Record<string, { lineId: string; quantity: number }>;
+}) => {
 	return (
 		<ul
 			role="list"
@@ -14,6 +20,9 @@ export const ProductList = ({ products }: { products: readonly ProductListItemFr
 					product={product}
 					priority={index < 2}
 					loading={index < 3 ? "eager" : "lazy"}
+					cartItem={
+						product.variants?.[0]?.id ? cartItems[product.variants[0].id] : undefined
+					}
 				/>
 			))}
 		</ul>

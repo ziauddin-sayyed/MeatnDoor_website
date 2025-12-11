@@ -26,7 +26,11 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 
 	const checkout = await Checkout.find(checkoutId);
 
-	if (!checkout || checkout.lines.length < 1) {
+	const visibleLines = checkout?.lines.filter(
+		(line) => line.variant?.product?.name !== "Handling Fee",
+	);
+
+	if (!checkout || !visibleLines || visibleLines.length < 1) {
 		return (
 			<section className="mx-auto max-w-7xl p-8">
 				<h1 className="mt-8 text-3xl font-bold text-[#47141e] ">Your Shopping Cart is empty</h1>
@@ -52,8 +56,10 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 					role="list"
 					className="divide-y divide-neutral-200 border-b border-t border-neutral-200"
 				>
-					{checkout.lines.map((item) => (
-						<li key={item.id} className="flex py-4">
+					{checkout.lines
+						.filter((item) => item.variant?.product?.name !== "Handling Fee")
+						.map((item) => (
+							<li key={item.id} className="flex py-4">
 							<div className="aspect-square h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border bg-neutral-50 sm:h-32 sm:w-32">
 								{item.variant?.product?.thumbnail?.url && (
 									<Image
@@ -102,7 +108,10 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 								<p className="mt-1 text-sm text-neutral-500">Shipping will be calculated in the next step</p>
 							</div>
 							<div className="font-medium text-neutral-900">
-								{formatMoney(checkout.totalPrice.gross.amount, checkout.totalPrice.gross.currency)}
+								{formatMoney(
+									visibleLines.reduce((acc, line) => acc + line.totalPrice.gross.amount, 0),
+									checkout.totalPrice.gross.currency,
+								)}
 							</div>
 						</div>
 					</div>

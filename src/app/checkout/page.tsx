@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { invariant } from "ts-invariant";
 import { RootWrapper } from "./pageWrapper";
+import { ensureHandlingFee } from "@/lib/handlingFee";
 
 export const metadata = {
 	title: "Checkout · MeatnDoor",
@@ -14,6 +15,10 @@ export default async function CheckoutPage(props: {
 
 	if (!searchParams.checkout && !searchParams.order) {
 		return null;
+	}
+
+	if (searchParams.checkout) {
+		await ensureHandlingFee(searchParams.checkout);
 	}
 
 	return (

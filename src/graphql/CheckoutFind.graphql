@@ -42,5 +42,8 @@ query CheckoutFind($id: ID!) {
 				currency
 			}
 		}
+		channel {
+			slug
+		}
 	}
 }
