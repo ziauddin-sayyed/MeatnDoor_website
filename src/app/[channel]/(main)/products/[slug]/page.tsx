@@ -98,8 +98,6 @@ export default async function Page(props: {
 	const checkoutId = await Checkout.getIdFromCookies(params.channel);
 	const checkout = await Checkout.find(checkoutId);
 
-
-
 	const isAvailable = variants?.some((variant) => variant.quantityAvailable) ?? false;
 
 	const price = selectedVariant?.pricing?.price?.gross
@@ -190,12 +188,9 @@ export default async function Page(props: {
 								cartItem={
 									checkout?.lines.find((line) => line.variant?.id === selectedVariantID)
 										? {
-												lineId: checkout.lines.find(
-													(line) => line.variant?.id === selectedVariantID,
-												)!.id,
-												quantity: checkout.lines.find(
-													(line) => line.variant?.id === selectedVariantID,
-												)!.quantity,
+												lineId: checkout.lines.find((line) => line.variant?.id === selectedVariantID)!.id,
+												quantity: checkout.lines.find((line) => line.variant?.id === selectedVariantID)!
+													.quantity,
 											}
 										: undefined
 								}

@@ -75,18 +75,47 @@ export function ProductElement({
 					)}
 				</div>
 			</LinkWithChannel>
-			<div className="mt-2 flex h-24 justify-between border-t-2 border-[#ed4264] px-4 py-2">
-				<div className="w-[60%] items-center justify-center ">
+			<div className="mt-2 flex h-32 justify-between border-t-2 border-[#ed4264] px-4 py-2">
+				<div className=" w-[60%] items-center justify-center ">
 					{/* <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-neutral-900"> */}
 					<h3 className="mt-1 whitespace-normal break-words text-sm font-semibold text-neutral-900">
 						{product.name}
 					</h3>
-					<p>Net: {product.variants?.[0]?.name}</p>
-					<p className="mt-1 hidden text-sm text-neutral-500" data-testid="ProductElement_Category">
-						{product.category?.name}
-					</p>
+					<div className="mt-1">
+						<p className="text-sm">
+							Net:{" "}
+							{
+								product?.variants?.[0]?.attributes?.find((a) => a.attribute?.slug === "net-weight")
+									?.values?.[0]?.name
+							}
+						</p>
+						<p className="text-sm">
+							Serves:
+							{product?.attributes?.find((a) => a.attribute?.slug === "serves-for")?.values?.[0]?.name}
+						</p>
+						{/* <p className="text-sm">
+							{product?.attributes?.find((a) => a.attribute?.slug === "number-of-pieces")?.values?.[0]?.name}{" "}
+							pieces
+						</p> */}
+						{product?.attributes?.find((a) => a.attribute?.slug === "number-of-pieces")?.values?.[0]
+							?.name && (
+							<>
+								<p className="text-sm">
+									{
+										product.attributes.find((a) => a.attribute?.slug === "number-of-pieces")?.values?.[0]
+											?.name
+									}{" "}
+									pieces
+								</p>
+							</>
+						)}
+
+						<p className="mt-1 hidden text-sm text-neutral-500" data-testid="ProductElement_Category">
+							{product.category?.name}
+						</p>
+					</div>
 				</div>
-				<div className="w-[40%] pt-2 text-right">
+				<div className="flex w-[40%] flex-col items-end justify-between  pt-2 text-right">
 					<p
 						className="mr-1 mt-1 text-sm font-medium text-neutral-900"
 						data-testid="ProductElement_PriceRange"
@@ -96,7 +125,7 @@ export function ProductElement({
 							stop: product?.pricing?.priceRange?.stop?.gross,
 						})}
 					</p>
-					<div className="mt-2 flex justify-end">
+					<div className="center mt-2 flex justify-end pb-2">
 						{cartItem ? (
 							<div className="flex items-center gap-2 rounded-md bg-[#ed4264]">
 								<button
