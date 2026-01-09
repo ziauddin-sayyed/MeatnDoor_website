@@ -53,24 +53,37 @@ const BEST_SELLERS_QUERY = `
           name
           slug
           thumbnail { url alt }
-          category { id name slug }
-          attributes {
-             attribute { name }
-             values { name }
-          }
-          variants {
-            id
-            name
-            pricing {
-               price {
-                 gross {
-                   amount
-                   currency
-                 }
-               }
-            }
-          }
-
+		  variants {
+				id
+				name
+				sku
+				pricing {
+				price {
+					gross {
+					amount
+					currency
+					}
+				}
+				}
+				quantityAvailable
+				media {
+				url
+				alt
+				}
+				attributes {
+				attribute {
+					id
+					name
+					slug
+				}
+				values {
+					id
+					name
+					value
+				}
+				}
+			}
+          category { id name slug }  # <-- ADD THIS
           pricing {
             priceRange {
               start { gross { amount currency } }
@@ -122,6 +135,7 @@ export default async function CustomPage({ params }: { params: { channel: string
 			{} as Record<string, { lineId: string; quantity: number }>,
 		) || {};
 
+console.log('productsproductsproducts',products)
 	return (
 		<div>
 			<CustomSlider />
