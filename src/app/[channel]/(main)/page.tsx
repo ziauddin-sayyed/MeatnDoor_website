@@ -37,13 +37,36 @@
 // import { ProductListPaginatedDocument } from "@/gql/graphql";
 // import { executeGraphQL } from "@/lib/graphql";
 import CustomPage from "@/ui/custompages/CustomPage";
+import * as Checkout from "@/lib/checkout";
 
 export const metadata = {
 	title: "MeatnDoor",
 	description: "Quality at Doorstep",
 };
 
-export default async function Page() {
+export default async function Page(props: {
+	params: Promise<{ channel: string }>;
+	searchParams: Promise<{
+		cursor: string | string[] | undefined;
+		categories: string | string[] | undefined;
+	}>;
+}) {
+	const params = await props.params;
+	const checkoutId = await Checkout.getIdFromCookies(params.channel);
+	const checkout = await Checkout.find(checkoutId)
+	const cartItems =
+		checkout?.lines.reduce(
+			(acc, line) => {
+				if (line.variant?.id) {
+					acc[line.variant.id] = {
+						lineId: line.id,
+						quantity: line.quantity,
+					};
+				}
+				return acc;
+			},
+			{} as Record<string, { lineId: string; quantity: number }>,
+		) || {};
 	// props: { params: Promise<{ channel: string }> }
 	// const params = await props.params;
 	// const data = await executeGraphQL(ProductListPaginatedDocument, {
@@ -55,11 +78,10 @@ export default async function Page() {
 	// 	revalidate: 60,
 	// });
 	// const productList = data.products?.edges.map((edge) => edge.node) || [];
-
 	return (
 		<section className="pb-16">
 			{/* <CustomPage products={productList} /> */}
-			<CustomPage />
+			<CustomPage {...cartItems}/>
 		</section>
 	);
 }

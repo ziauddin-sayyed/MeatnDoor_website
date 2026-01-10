@@ -156,7 +156,7 @@ import Link from "next/link";
 import { ProductList } from "@/ui/components/ProductList";
 import { type ProductListItemFragment } from "@/gql/graphql";
 
-export default function CustomCarousel({ products }: { products: ProductListItemFragment[] }) {
+export default function CustomCarousel({ products, cartItems }: { products: ProductListItemFragment[], cartItems?: Record<string, { lineId: string; quantity: number }> }) {
 	// const carouselRef = useRef<HTMLUListElement>(null); // for list element
 	const carouselRef = useRef<HTMLDivElement>(null);
 	const displayedProducts = products.slice(0, 10);
@@ -176,7 +176,7 @@ export default function CustomCarousel({ products }: { products: ProductListItem
 	// };
 
 	return (
-		<div className="container mx-auto w-full my-10">
+		<div className="container mx-auto w-full my-10 px-5 md:px-0">
 			{/* Heading */}
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Best Seller</h2>
@@ -194,7 +194,7 @@ export default function CustomCarousel({ products }: { products: ProductListItem
 					<ChevronLeft className="text-pink-400" size={24} />
 				</button> */}
 				<div ref={carouselRef} className="scrollbar-hide w-full whitespace-nowrap">
-					<ProductList products={displayedProducts} />
+					<ProductList products={displayedProducts} cartItems={cartItems}/>
 				</div>
 
 				{/* Right Arrow */}

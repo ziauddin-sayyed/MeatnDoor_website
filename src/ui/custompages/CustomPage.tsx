@@ -48,7 +48,15 @@ const BEST_SELLERS_QUERY = `
           id
           name
           slug
-          thumbnail { url alt }
+          thumbnail(size: 1024) {
+            url
+            alt
+          }
+		collections {
+            id
+            name
+            slug
+          }
 		  variants {
 				id
 				name
@@ -110,13 +118,13 @@ async function getBestSellerProducts(): Promise<ProductListItemFragment[]> {
 
 // Page component
 // eslint-disable-next-line import/no-default-export
-export default async function CustomPage() {
+export default async function CustomPage(cartItems?: Record<string, { lineId: string; quantity: number }>) {
 	const products = await getBestSellerProducts();
-console.log('productsproductsproducts',products)
+// console.log('products==============', products)
 	return (
 		<div>
 			<CustomSlider />
-			<CustomCarousel products={products} />
+			<CustomCarousel products={products} cartItems={cartItems}/>
 		</div>
 	);
 }
