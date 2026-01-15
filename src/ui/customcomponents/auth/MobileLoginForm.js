@@ -179,7 +179,7 @@ export function MobileLoginForm() {
 			return;
 		}
 		try {
-			const response = await fetch(apiConfig.SEND_OTP_ENDPOINT, {
+			const response = await fetch("/api/auth/send-otp", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ phone }),
@@ -202,6 +202,7 @@ export function MobileLoginForm() {
 			}
 		} catch (error) {
 			console.error("Error sending OTP:", error);
+			alert("Failed to send OTP. Please try again.");
 		}
 	};
 
@@ -246,7 +247,7 @@ export function MobileLoginForm() {
 			return;
 		}
 		try {
-			const response = await fetch(apiConfig.VERIFY_OTP_ENDPOINT, {
+			const response = await fetch("/api/auth/verify-otp", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ phone, code: otp }),
