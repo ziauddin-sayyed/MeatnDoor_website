@@ -9,8 +9,8 @@ export const LinkWithChannel = ({
 }: Omit<ComponentProps<typeof Link>, "href"> & { href: string }) => {
 	const { channel } = useParams<{ channel?: string }>();
 
-	if (!href.startsWith("/")) {
-		return <Link {...props} href={href} />;
+	if (!href.startsWith("/") || href.endsWith(".html")) {
+		return <a {...(props as any)} href={href} />;
 	}
 
 	const encodedChannel = encodeURIComponent(channel ?? "");
