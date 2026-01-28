@@ -286,7 +286,7 @@ export const OrderListItem = ({ order }: Props) => {
 								if (savingAmountStr) {
 									const originalPrice = parseFloat(savingAmountStr);
 									// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-									const discountedPrice = parseFloat(String(line.unitPrice.gross.amount || 0));
+									const discountedPrice = parseFloat(String(line.undiscountedUnitPrice.gross.amount || 0));
 									lineSavings = (originalPrice - discountedPrice) * line.quantity;
 									foundSaving = true;
 									break;
@@ -295,7 +295,6 @@ export const OrderListItem = ({ order }: Props) => {
 						}
 					}
 				}
-
 				// Method 2: Fallback to undiscountedUnitPrice vs unitPrice
 				if (!foundSaving && line.undiscountedUnitPrice) {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -317,14 +316,14 @@ export const OrderListItem = ({ order }: Props) => {
 						currency = line.unitPrice.gross.currency ;
 					}
 				}
-				if (_shippingPriceAmount?.amount === 0 &&  _maxShippingPriceAmount?.amount && _maxShippingPriceAmount.amount > 0) {
-					savings += _maxShippingPriceAmount?.amount ?? 0;
-					if (!currency && _shippingPriceAmount?.currency) {
-						currency = _shippingPriceAmount?.currency;
-					}
-				}
 			}
 		});
+		if (_shippingPriceAmount?.amount === 0 &&  _maxShippingPriceAmount?.amount && _maxShippingPriceAmount.amount > 0) {
+			savings += _maxShippingPriceAmount?.amount ?? 0;
+			if (!currency && _shippingPriceAmount?.currency) {
+				currency = _shippingPriceAmount?.currency;
+			}
+		}
 
 		if (savings > 0 && currency) {
 			setTotalSavings({ amount: savings, currency });
@@ -765,7 +764,7 @@ export const OrderListItem = ({ order }: Props) => {
 													<p className="font-semibold text-green-700">You saved</p>
 												</div>
 												<span className="text-green-600 font-bold text-lg">
-													{formatMoney(totalSavings.amount, totalSavings.currency)}
+													{formatMoney(totalSavings.amount + (order?.discount?.amount ?? 0), totalSavings.currency)}
 												</span>
 											</div>
 										</div>

@@ -116,12 +116,11 @@ export const GeneratePDFInvoice: React.FC<GeneratePDFInvoiceProps> = ({
 					);
 
 					// Get gross price (default to 0 if not found)
-					const grossAmount = parseFloat(String(item.unitPrice?.gross?.amount || 0));
+					const grossAmount = parseFloat(String(item.undiscountedUnitPrice?.gross?.amount || 0));
 
 					const quantity = item.quantity;
 					// Calculate discounted price
 					const discountedPrice = (savingAmount - grossAmount) * quantity;
-
 					const itemTotal = savingAmount * quantity;
 					const subTotal = quantity * grossAmount;
 
@@ -381,7 +380,7 @@ export const GeneratePDFInvoice: React.FC<GeneratePDFInvoiceProps> = ({
 						<div id="bill">
 							<div class="bill-row">
 								<div class="bill-label">Total:</div>
-								<div class="bill-value">${Math.round((order.subtotal?.gross?.amount || 0) - handlingFee - (order.shippingPrice?.gross?.amount || 0))}</div>
+								<div class="bill-value">${Math.round((order.subtotal?.gross?.amount || 0) - handlingFee + (order.discount?.amount || 0))}</div>
 							</div>
 							<div class="bill-row">
 								<div class="bill-label">Delivery Charge:</div>
