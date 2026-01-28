@@ -157,19 +157,19 @@
 "use client";
 import { setTokenCookie } from "./validateCode";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createSaleorAuthClient } from "@saleor/auth-sdk";
 import { apiConfig } from "@/config/SaleorApi";
 import { ClipLoader } from "react-spinners";
 
 export function MobileLoginForm() {
 	const router = useRouter();
+	const pathname = usePathname()
 	const [phone, setPhone] = useState("");
 	const [otp, setOtp] = useState("");
 	const [otpSent, setOtpSent] = useState(false);
 	const [isGeneratingOtp, setIsGeneratingOtp] = useState(false);
 	const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-
 	// 🔹 Saleor Auth Client setup
 	const saleorAuthClient = createSaleorAuthClient({
 		saleorApiUrl: process.env.NEXT_PUBLIC_SALEOR_API_URL || "",
@@ -355,7 +355,7 @@ export function MobileLoginForm() {
 				// window.opener.location.reload();
 				// window.close();
 				alert("✅ Login successful!");
-				router.push("/in");
+				router.push(pathname.includes("/cart") ? "/in/cart" : "/in");
 			}
 		} catch (error) {
 			console.error("Error verifying OTP:", error);
